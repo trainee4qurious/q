@@ -1,0 +1,52 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  forms     Form[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Form {
+  id             String     @id @default(cuid())
+  title          String
+  description    String?
+  userId         String
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions      Question[]
+  responsesCount Int        @default(0)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+model Question {
+  id         String   @id @default(cuid())
+  formId     String
+  form       Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  type           String   // "text", "email", "number", "phone", "radio", "checkbox", "textarea", "dropdown"
+  text           String
+  points         Int      @default(0)
+  imageUrl       String?
+  options        Json?    // For radio, checkbox, dropdown: ["Option 1", "Option 2"]
+  originalAnswer String?  // For scoring: "Option 1" or "Correct Text"
+  required       Boolean  @default(true)
+  validation     String?  // Additional validation like "email", "phone"
+  page           Int      @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([formId])
+}
