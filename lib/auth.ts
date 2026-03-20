@@ -6,7 +6,12 @@ import { cache } from 'react'
 
 import { prisma } from './db'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev'
+const secret = process.env.JWT_SECRET
+if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET environment variable is required in production')
+}
+
+const JWT_SECRET = secret || 'fallback-secret-for-dev'
 
 export const hashPassword = async (password: string) => {
     return await bcrypt.hash(password, 12)

@@ -25,7 +25,9 @@ model Form {
   userId         String
   user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   questions      Question[]
+  responses      FormResponse[]
   responsesCount Int        @default(0)
+  lockMode       Boolean    @default(false)
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 
@@ -47,6 +49,18 @@ model Question {
   page           Int      @default(1)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  @@index([formId])
+}
+
+model FormResponse {
+  id          String   @id @default(cuid())
+  formId      String
+  form        Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  data        Json     // The answers { "questionId": "answer" }
+  score       Int?
+  tabSwitches Int      @default(0)
+  createdAt   DateTime @default(now())
 
   @@index([formId])
 }

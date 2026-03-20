@@ -26,12 +26,14 @@ const questionSchema = z.object({
     required: z.boolean(),
     validation: z.string().optional(),
     page: z.number().min(1, 'Page must be >= 1'),
+    id: z.string().optional(),
 })
 
 const formSchema = z.object({
     title: z.string().min(1, 'Title is required'),
     description: z.string().optional(),
     questions: z.array(questionSchema).min(1, 'At least one question is required'),
+    lockMode: z.boolean(),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -50,6 +52,7 @@ export function CreateFormModal() {
         defaultValues: {
             title: '',
             description: '',
+            lockMode: false,
             questions: [{ type: 'text', text: '', points: 0, options: [{ text: 'Option 1' }], originalAnswer: '', required: true, page: 1 }],
         },
     })
@@ -66,24 +69,29 @@ export function CreateFormModal() {
             const fetchForm = async () => {
                 setIsFetching(true)
                 try {
-                    const form = await getFormById(selectedFormId)
-                    reset({
-                        title: form.title,
-                        description: form.description || '',
-                        questions: form.questions.map((q: Question) => ({
-                            type: q.type as any,
-                            text: q.text,
-                            points: q.points,
-                            imageUrl: q.imageUrl || undefined,
-                            options: (Array.isArray(q.options) ? q.options : [])?.map((opt: any) =>
-                                typeof opt === 'string' ? { text: opt } : opt
-                            ) || [{ text: 'Option 1' }],
-                            originalAnswer: q.originalAnswer || '',
-                            required: q.required,
-                            validation: q.validation || undefined,
-                            page: q.page,
-                        })),
-                    })
+                    if (selectedFormId) {
+                        const existingData = await getFormById(selectedFormId)
+                        reset({
+                            title: existingData.title,
+                            description: existingData.description || '',
+                            lockMode: (existingData as any).lockMode || false,
+                            questions: existingData.questions.map((q: any) => ({
+                                type: q.type as any,
+                                text: q.text,
+                                points: q.points,
+                                imageUrl: q.imageUrl || undefined,
+                                options: (q.options as any[])?.map((opt: any) => ({
+                                    text: opt.text,
+                                    imageUrl: opt.imageUrl || undefined,
+                                    points: opt.points || 0
+                                })) || [],
+                                required: q.required,
+                                validation: q.validation || undefined,
+                                page: q.page,
+                                id: q.id,
+                            })),
+                        })
+                    }
                 } catch (error) {
                     toast({ title: 'Error loading form', variant: 'destructive' })
                     setIsCreateModalOpen(false)
@@ -96,6 +104,7 @@ export function CreateFormModal() {
             reset({
                 title: '',
                 description: '',
+                lockMode: false,
                 questions: [{ type: 'text', text: '', points: 0, options: [{ text: 'Option 1' }], originalAnswer: '', required: true, page: 1 }],
             })
         }
@@ -176,8 +185,31 @@ export function CreateFormModal() {
                                     {...register('description')}
                                     rows={2}
                                     placeholder="Describe the purpose of this form..."
-                                    className="w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-all text-foreground"
+                                    className="w-full rounded-md border border-input bg-muted/50 px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-primary transition-all text-foreground"
                                 />
+                            </div>
+
+                            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border mt-2">
+                                <div className="space-y-0.5">
+                                    <div className="flex items-center gap-2">
+                                        <label className="text-sm font-semibold text-foreground">Lock Mode</label>
+                                        {methods.watch('lockMode') ? (
+                                            <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded uppercase tracking-wider">Active</span>
+                                        ) : (
+                                            <span className="text-[10px] font-bold bg-muted text-muted-foreground px-1.5 py-0.5 rounded uppercase tracking-wider">Off</span>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">Detect and record when users change tabs during form filling.</p>
+                                </div>
+                                <label className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full overflow-hidden transition-colors">
+                                    <input
+                                        type="checkbox"
+                                        {...register('lockMode')}
+                                        className="peer sr-only"
+                                    />
+                                    <div className="absolute inset-0 bg-muted-foreground/20 transition-colors peer-checked:bg-primary" />
+                                    <span className="relative ml-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-5" />
+                                </label>
                             </div>
                         </div>
 

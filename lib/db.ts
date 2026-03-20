@@ -14,4 +14,10 @@ export const prisma =
         adapter,
     })
 
+// Force recreate global instance once
+if (process.env.NODE_ENV !== 'production') {
+    // @ts-ignore
+    global.prisma = undefined
+}
+
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma

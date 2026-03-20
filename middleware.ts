@@ -3,9 +3,12 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import * as jose from 'jose'
 
-const JWT_SECRET = new TextEncoder().encode(
-    process.env.JWT_SECRET || 'fallback-secret-for-dev'
-)
+const secret = process.env.JWT_SECRET
+if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET environment variable is required in production')
+}
+
+const JWT_SECRET = new TextEncoder().encode(secret || 'fallback-secret-for-dev')
 
 export async function middleware(request: NextRequest) {
     const token = request.cookies.get('auth-token')?.value

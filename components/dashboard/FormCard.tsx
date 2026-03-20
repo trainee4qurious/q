@@ -16,6 +16,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useRouter } from 'next/navigation'
 
 interface FormCardProps {
     form: {
@@ -29,10 +30,11 @@ interface FormCardProps {
 
 export function FormCard({ form }: FormCardProps) {
     const { toast } = useToast()
+    const router = useRouter()
     const [isDeleting, setIsDeleting] = useState(false)
 
     const handleCopyLink = () => {
-        const url = `${window.location.origin}/form/${form.id}`
+        const url = `${window.location.origin}/f/${form.id}`
         navigator.clipboard.writeText(url)
         toast({
             title: 'Link Copied',
@@ -95,6 +97,13 @@ export function FormCard({ form }: FormCardProps) {
                                     <Copy className="h-4 w-4" />
                                     <span>Copy Link</span>
                                 </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => router.push(`/dashboard/responses/${form.id}`)}
+                                    className="cursor-pointer gap-2"
+                                >
+                                    <Files className="h-4 w-4" />
+                                    <span>Responses</span>
+                                </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                     onClick={handleDelete}
@@ -123,12 +132,21 @@ export function FormCard({ form }: FormCardProps) {
                     variant="ghost"
                     size="sm"
                     className="h-8 text-xs gap-1 opacity-60 hover:opacity-100 transition-opacity"
-                    onClick={() => window.open(`/form/${form.id}`, '_blank')}
+                    onClick={() => window.open(`/f/${form.id}`, '_blank')}
                 >
                     <ExternalLink className="h-3.5 w-3.5" />
                     Preview
                 </Button>
                 <div className="flex-1" />
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-xs gap-1 border-primary/20 text-primary hover:bg-primary/10"
+                    onClick={() => router.push(`/dashboard/responses/${form.id}`)}
+                >
+                    <Files className="h-3.5 w-3.5" />
+                    Responses
+                </Button>
                 <Button
                     variant="outline"
                     size="sm"
