@@ -1,13 +1,14 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useFormStore } from "@/store/formStore"
 import { StepLayout } from "@/components/form-submission/StepLayout"
+import { getPublicForm } from "@/app/actions/form-actions"
 
 export default function RootPage() {
     const { id } = useParams()
-    const { _hasHydrated, questions, isSubmitted, resetForm } = useFormStore()
+    const { _hasHydrated, questions, isSubmitted, resetForm, isLoadingQuestions, activeFormId } = useFormStore()
     const router = useRouter()
 
     useEffect(() => {
@@ -16,11 +17,12 @@ export default function RootPage() {
         }
     }, [_hasHydrated, isSubmitted, resetForm])
 
+    // Automatic redirect once sync is complete for THIS form
     useEffect(() => {
-        if (_hasHydrated && questions.length > 0 && id) {
+        if (_hasHydrated && !isLoadingQuestions && id === activeFormId) {
             router.replace(`/f/${id}/step/1`)
         }
-    }, [_hasHydrated, questions, id, router])
+    }, [_hasHydrated, id, activeFormId, isLoadingQuestions, router])
 
     return (
         <StepLayout title="Loading..." description="Preparing your form...">

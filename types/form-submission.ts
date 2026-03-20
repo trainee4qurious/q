@@ -48,11 +48,13 @@ export type FormStore = {
     isLoadingQuestions: boolean
     lockMode: boolean
     tabSwitches: number
+    activeFormId: string | null
     setIsSubmitted: (isSubmitted: boolean) => void
     setSubmissionStatus: (status: 'idle' | 'submitting' | 'success' | 'error', error?: string) => void
     setTotalScore: (score: number) => void
     setIsLoadingQuestions: (isLoading: boolean) => void
     setLockMode: (lockMode: boolean) => void
+    setActiveFormId: (id: string | null) => void
     incrementTabSwitches: () => void
     resetForm: () => void
 }

@@ -16,9 +16,10 @@ export const useFormStore = create<FormStore>()(
             submissionStatus: 'idle',
             submissionError: null,
             totalScore: 0,
-            isLoadingQuestions: false,
             lockMode: false,
             tabSwitches: 0,
+            activeFormId: null,
+            isLoadingQuestions: false,
             formSessionId: `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
             setFormData: (data) =>
                 set((state) => ({
@@ -33,6 +34,7 @@ export const useFormStore = create<FormStore>()(
             setTotalScore: (totalScore) => set({ totalScore }),
             setIsLoadingQuestions: (isLoading) => set({ isLoadingQuestions: isLoading }),
             setLockMode: (lockMode) => set({ lockMode }),
+            setActiveFormId: (id) => set({ activeFormId: id }),
             incrementTabSwitches: () => set((state) => ({ tabSwitches: state.tabSwitches + 1 })),
             resetForm: () => set((state) => ({
                 formData: {},
@@ -52,6 +54,17 @@ export const useFormStore = create<FormStore>()(
             name: 'form-storage',
             onRehydrateStorage: (state) => {
                 return () => state?.setHasHydrated(true)
+            },
+            // Don't persist transient or sensitive loading states
+            partialize: (state) => {
+                const { 
+                    isLoadingQuestions, 
+                    submissionStatus, 
+                    submissionError, 
+                    isSubmitted,
+                    ...persistedState 
+                } = state
+                return persistedState
             }
         }
     )

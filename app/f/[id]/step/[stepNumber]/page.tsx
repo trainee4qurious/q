@@ -80,7 +80,7 @@ export default function DynamicStepPage() {
         if (stepNumber === 1) {
             toast({
                 title: "Lock Mode Active",
-                description: "Fullscreen is required. Do not exit fullscreen or change tabs until completion.",
+                description: "Don't change tabs! Leaving this page is blocked and will be recorded.",
                 variant: "destructive",
                 duration: 5000,
             })
@@ -230,7 +230,7 @@ export default function DynamicStepPage() {
                     <div>
                         <h4 className="font-bold text-red-800">Lock Mode Enabled</h4>
                         <p className="text-sm text-red-700">
-                            Fullscreen is mandatory. Do not switch tabs or exit fullscreen. All actions are being recorded.
+                            Please do not switch tabs or windows. All switches are being recorded.
                         </p>
                     </div>
                 </div>
