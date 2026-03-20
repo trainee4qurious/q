@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google";
 import "./f-globals.css";
 import { FormSync } from "@/components/form-submission/FormSync"
+import { FullscreenOverlay } from "@/components/form-submission/FullscreenOverlay"
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -27,6 +28,7 @@ export default function RootLayout({
     return (
         <div className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
             <FormSync />
+            <FullscreenOverlay />
             {children}
         </div>
     )
