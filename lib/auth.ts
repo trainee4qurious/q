@@ -7,8 +7,10 @@ import { cache } from 'react'
 import { prisma } from './db'
 
 const secret = process.env.JWT_SECRET
-if (!secret && process.env.NODE_ENV === 'production') {
-    throw new Error('JWT_SECRET environment variable is required in production')
+const isBuild = process.env.NEXT_PHASE === 'phase-production-build'
+
+if (!secret && process.env.NODE_ENV === 'production' && !isBuild) {
+  throw new Error('JWT_SECRET environment variable is required in production')
 }
 
 const JWT_SECRET = secret || 'fallback-secret-for-dev'
